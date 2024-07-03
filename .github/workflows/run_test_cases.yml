@@ -35,13 +35,17 @@ jobs:
       - name: Parse Pull Request
         id: parse_pr
         env:
-          details: ${{ steps.pr_details.outputs.data }}
-          last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
+          DETAILS: ${{ steps.pr_details.outputs.data }}
+          LAST_UPDATE_DATE: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
         run: |
           # Convert the JSON string to a PowerShell object 
-          $pull_request = $env:details | ConvertFrom-Json
-          #$pull_request = ConvertFrom-Json -InputObject "${{ env.details }}"
+          $details = "${{ env.DETAILS }}" -replace '","','","'
+          $pullRequest = $details | ConvertFrom-Json
           
+          # Print the content of $pull_request to the console for debugging  
+          Write-Host "Pull Request Details:"  
+          Write-Host ($pull_request | Out-String) 
+        
           # Extract data from the JSON object
           $pr_html_url = $pull_request.html_url  
           $pr_author = $pull_request.user.login  
@@ -51,12 +55,15 @@ jobs:
           $pr_base_sha = $pull_request.base.sha  
           $pr_updated_at = [datetime]::Parse($pull_request.updated_at)
           $last_update_date_str = "${{ env.last_update_date }}"  
-          if ($last_update_date_str) {  
-              $last_update_date = [datetime]::Parse($last_update_date_str)  
-          } else {  
-              # Defaults to a date before the current time  
-              $last_update_date = [datetime]::MinValue  
-          }  
+          # if ($last_update_date_str) {  
+          #     $last_update_date = [datetime]::Parse($last_update_date_str)  
+          # } else {  
+          #     # Defaults to a date before the current time  
+          #     $last_update_date = [datetime]::MinValue  
+          # }  
+          $lastUpdateDate = if ($env:LAST_UPDATE_DATE) { [datetime]::Parse($env:LAST_UPDATE_DATE) } else { [datetime]::MinValue }
+
+
   
           if ($pr_updated_at -gt $last_update_date) {  
                Write-Host "PR is updated after the last update date. Exiting..."  
