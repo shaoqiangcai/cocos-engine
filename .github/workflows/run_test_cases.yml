@@ -38,6 +38,7 @@ jobs:
           details: ${{ steps.pr_details.outputs.data }}
           last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
         run: |
+          $ErrorActionPreference = 'stop' 
           # Convert the JSON string to a PowerShell object 
           $pull_request = $env:details | ConvertFrom-Json
           #$pull_request = ConvertFrom-Json -InputObject "${{ env.details }}"
