@@ -24,13 +24,13 @@ jobs:
     runs-on: self-hosted-win
 
     steps:
-      - name: Get PR Details
-        id: pr_details
-        uses: octokit/request-action@v2.x
-        with:
-          route: GET /repos/cocos/cocos-engine/pulls/${{ env.PR_NUMBER }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Get PR Details
+      #   id: pr_details
+      #   uses: octokit/request-action@v2.x
+      #   with:
+      #     route: GET /repos/cocos/cocos-engine/pulls/${{ env.PR_NUMBER }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Parse Pull Request
         id: parse_pr
@@ -69,28 +69,28 @@ jobs:
           echo "pr_head_sha=$pr_head_sha" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
           echo "pr_base_ref=$pr_base_ref" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
           echo "pr_base_sha=$pr_base_sha" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
-      - name: Checkout engine
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
+      # - name: Checkout engine
+      #   uses: actions/checkout@v3
+      #   with:
+      #     fetch-depth: 0
+      #     ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
-      - name: Checkout rebase
-        env:
-          BASE: ${{ steps.parse_pr.outputs.pr_base_ref }}
-          HEAD: ${{ steps.parse_pr.outputs.pr_head_sha }}
-        run: |
-          git config user.email
-          git config user.name
-          git fetch origin
-          git reset --hard   
-          git checkout origin/$BASE
-          git pull origin $BASE --allow-unrelated-histories
-          git branch -D $BASE
-          git branch $BASE
-          git branch -D pull-$PR_NUMBER || true
-          git fetch origin $HEAD:pull-$PR_NUMBER
-          git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
+      # - name: Checkout rebase
+      #   env:
+      #     BASE: ${{ steps.parse_pr.outputs.pr_base_ref }}
+      #     HEAD: ${{ steps.parse_pr.outputs.pr_head_sha }}
+      #   run: |
+      #     git config user.email
+      #     git config user.name
+      #     git fetch origin
+      #     git reset --hard   
+      #     git checkout origin/$BASE
+      #     git pull origin $BASE --allow-unrelated-histories
+      #     git branch -D $BASE
+      #     git branch $BASE
+      #     git branch -D pull-$PR_NUMBER || true
+      #     git fetch origin $HEAD:pull-$PR_NUMBER
+      #     git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
       # - name: Download external libraries
       #   shell: bash
       #   run: |
